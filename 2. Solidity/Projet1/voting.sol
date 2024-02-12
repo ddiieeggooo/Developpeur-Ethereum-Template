@@ -6,10 +6,12 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 
 contract Voting  is Ownable {
 
-    // determiner fin du vote, trigger un compte des votes puis sort le gagant;
+    constructor(address initialOwner) {
+        initialOwner = msg.sender;
+    }
 
     mapping (address => bool)whitelistElecteurs;
-    mapping (Proposal => uint)proposalId;
+    mapping (uint => Proposal)proposalId;
 
     struct Voter {
         bool isRegistered;
@@ -30,7 +32,7 @@ contract Voting  is Ownable {
         VotingSessionEnded,
         VotesTallied
     }
-    Workflowstatus currentWorkflowStatus;
+    WorkflowStatus public currentWorkflowStatus;
 
 
     event VoterRegistered(address voterAddress);
@@ -39,43 +41,55 @@ contract Voting  is Ownable {
     event Voted (address voter, uint proposalId);
 
     Proposal[] public proposals;
-    Voter[proposals[]] public arrayDesElecteurs;
+    Voter[] public arrayDesElecteurs;
 
     function addAddrToWhitelist(address _whitelistedAddress) external onlyOwner {
-        require(!whitelistElecteurs[_whitelistedaddress], "This address is already whitelisted !");
+        require(!whitelistElecteurs[_whitelistedAddress], "This address is already whitelisted !");
         whitelistElecteurs[_whitelistedAddress] = true;
+        Voter[msg.sender].isRegistered = true;
         emit VoterRegistered(_whitelistedAddress);
     }
 
-    function changeWorkflowStatus(string _newStatus) external onlyOwner {
-        require(_newStatus == WorflowStatus, "This is not a valid Worflow status");
-        require(_newStatus != currentWorflowStatus, "This is already the current Workflow status");
-        previousStatus = currentworkflowStatus;
-        newStatus = _newStatus;
-        currentWorflowStatus = Workflowstatus._newStatus;
-        emit WorkflowStatusChange(previousStatus, newStatus);
+    function changeWorkflowStatus(string calldata previousStatus, string calldata _newStatus) external onlyOwner {
+        require(_newStatus == WorkflowStatus, "This is not a valid Worflow status");
+        require(_newStatus != currentWorkflowStatus, "This is already the current Workflow status");
+        WorkflowStatus = previousStatus;
+        currentWorkflowStatus = WorkflowStatus._newStatus;
+        emit WorkflowStatusChange(previousStatus, _newStatus);
     }
 
-    function submitProposal(string calldata _newProposal) external {
+    function submitProposal(string calldata _newProposal, uint voteCount) external {
         require(whitelistElecteurs[msg.sender] ==  true, "You can't make a proposal since you're not whitelisted");
-        require(currentWorkflowStatus = Workflowstatus.ProposalsRegistrationStarted, "Sorry. It's not the time for a proposal");
+        require(currentWorkflowStatus = WorkflowStatus.ProposalsRegistrationStarted, "Sorry. It's not the time for a proposal");
+
         Proposal memory newProposal = Proposal(_newProposal, voteCount);
         proposals.push(newProposal);
         if (proposals.lenght != 0) {
-            emit Proposalregistred(proposals.lenght ++);
-        } else emit Proposalregistred(1);
+            emit ProposalRegistered(proposals.lenght ++);
+        } else emit ProposalRegistered(1);
     }
 
     function vote(uint _proposalId) external {
-        require(currentWorkflowStatus = Workflowstatus.VotingSessionStarted, "Sorry. It's not the time for voting");
-        Proposal.voteCount ++; //revoir ce bout de code, comparer avec les autres fichiers sol
+        require(currentWorkflowStatus = WorkflowStatus.VotingSessionStarted, "Sorry. It's not the time for voting");
+        Proposal[_proposalId].voteCount++;
+        Voter[msg.sender].hasVoted = true;
+        Voter[msg.sender].votedProposalId = _proposalId;
         proposalId = _proposalId;
-        emit Voted(msg.sender, proposalID);
+        emit Voted(msg.sender, proposalId);
     }
 
-    function countVotes() external view onlyOwner returns(uint) {
-        require(currentWorkflowStatus = Workflowstatus.VotingSessionEnded, "You can't count votes for now");
-        proposals[Proposals[voteCount]];
+    function getWinner() external view onlyOwner returns(uint _winningProposalId) {
+        require(currentWorkflowStatus = WorkflowStatus.VotingSessionEnded, "You can't count votes for now");
+        uint winnerTotalVotes;
+        uint winningProposalId;
+        for (uint i = 0; i <= proposals.lenght; i++) {
+            if (Proposal[i].voteCount > winnerTotalVotes) {
+                winnerTotalVotes = Proposal[i].voteCount;
+                _winningProposalId = i;
+            }
+        }
+        _winningProposalId = winningProposalId;
+        return winningProposalId;
     }
 
     function getVoteOf (address addr) external view returns(uint) {
@@ -84,15 +98,11 @@ contract Voting  is Ownable {
     }
 
 
-
-    function getWinner() external view returns(string) {
-        proposals;
-        // return la propal avec le plus de voix
-    }
-
-    function detailsOfWinnerProposal() external view returns(string) {
-        require(currentWorkflowStatus = Workflowstatus.VotesTallied, "There is no winner yet");
-        // retunr la propal, nombre de voix et l'addr qui a proposé
+    function detailsOfWinnerProposal(uint winningProposalId) external view returns(string calldata description, uint voteCount, address _addr0fPropositon) {
+        require(currentWorkflowStatus = WorkflowStatus.VotesTallied, "There is no winner yet");
+        return arrayDesElecteurs[proposals[winningProposalId]].description;
+        return arrayDesElecteurs[proposals[winningProposalId]].voteCount;
+        return winningProposalId(msg.sender);
     }
 
 }
