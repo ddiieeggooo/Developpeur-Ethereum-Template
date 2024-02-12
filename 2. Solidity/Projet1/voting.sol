@@ -94,7 +94,7 @@ contract Voting is Ownable {
         return winningProposalId;
     }
 
-    function getVoteOf (address addr) external view returns(uint) {
+    function getVoteOf(address addr) external view returns(uint) {
         require(whitelistElecteurs[msg.sender] ==  true, "You can't access this information");
         return Voter[addr].votedProposalId;
     }
