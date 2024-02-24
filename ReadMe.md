@@ -1,10 +1,5 @@
-## Bonjour apprenants d'Alyra
+Testings Projet 2
 
-Ceci est un **template** pour vous aider à vous organiser lors de l'apprentissage du développement blockchain chez Alyra
-Nous vous conseillons de forker ce repo, le cloner sur votre machine pour pouvoir travailler tranquillement dessus.
-Vous pouvez rendre vos projets directement dessus, ou bien sur des repo individuels, à vous de voir ce que vous préférez.
-Le fork doit etre privé, et si on doit y avoir accès, vous pouvez ajouter lecascyril et BenBktech en tant que membre du repo.
+TESTS
 
-*Attention: ceci est juste un template fait de dossier, il ne sera pas mis à jour avec du code. Pour le code de votre promo, veuillez pull le repo de promo :)*
-
-### Bon apprentissage!
+J'ai essayé d'écrire des tests pour chacune des fonctions, j'ai commencé par les getters, ensuite j'ai écrit des tests pour vérifier qu'un voter était bien enregistré et qu'il ne pouvait pas être enregistré s'il l'était déjà. J'ai continué avec les tests des proposals, pour vérifier si une proposal était bien enregistrée, et pour vérifier le revert si jamais la session des proposals n'avait pas démarrée ou était terminée. Ensuite j'ai écrit un test pour vérifier que les votes passaient bien, et qu'ils étaient bien revert si le voter ne choisissait pas un bon proposalId, ou que la session de vote n'avait pas commencé ou était terminée. Par la suite j'ai écrit un test pour vérifier que le changement de workflow s'oppérait correctement pour chaque situation de l'enum. J'ai terminé les test par la vérification qu'un gagant était correctement obtenu quand il obtenait la majorité.

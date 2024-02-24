@@ -214,5 +214,4 @@ contract VotingTest is Test {
         assertEq(_Voting.winningProposalID(), 0);
     }
 
-
 }
